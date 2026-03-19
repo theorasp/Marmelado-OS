@@ -36,7 +36,9 @@ jobs:
           cp scripts/packages.x86_64 /tmp/build/profile/packages.x86_64
           cp scripts/profiledef.sh /tmp/build/profile/profiledef.sh
           cp -r airootfs/. /tmp/build/profile/airootfs/
-          mkarchiso -v -w /tmp/build/work -o output/ /tmp/build/profile
+          mkarchiso -v -w /tmp/build/work -o output/ /tmp/build/profile || true
+sed -i "s/bootmodes=.*/bootmodes=('uefi-x64.systemd-boot.esp')/" /tmp/build/profile/profiledef.sh
+mkarchiso -v -w /tmp/build/work -o output/ /tmp/build/profile
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
