@@ -1,0 +1,54 @@
+name: Build Marmelado OS ISO
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Als Release veroeffentlichen?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  build-iso:
+    name: Build ISO
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        run: |
+          pacman-key --init
+          pacman-key --populate archlinux
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm archiso git squashfs-tools libisoburn
+      - name: Build
+        run: |
+          mkdir -p /tmp/build/profile output
+          cp -r /usr/share/archiso/configs/releng/. /tmp/build/profile/
+          cp scripts/packages.x86_64 /tmp/build/profile/packages.x86_64
+          cp scripts/profiledef.sh /tmp/build/profile/profiledef.sh
+          cp -r airootfs/. /tmp/build/profile/airootfs/
+          mkarchiso -v -w /tmp/build/work -o output/ /tmp/build/profile
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: marmelado-os-iso
+          path: output/*.iso
+          retention-days: 30
+      - name: Release
+        if: github.event.inputs.release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Marmelado OS v${{ github.run_number }}
+          files: output/*.iso
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
