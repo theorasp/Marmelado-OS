@@ -28,7 +28,7 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
           pacman -Syu --noconfirm
-          pacman -S --noconfirm archiso git squashfs-tools libisoburn
+          pacman -S --noconfirm archiso grub git squashfs-tools libisoburn edk2-shell
       - name: Build
         run: |
           mkdir -p /tmp/build/profile output
