@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd ""$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 WORK_DIR="/tmp/marmelado-build"
 OUT_DIR="$PROJECT_DIR/output"
@@ -95,7 +95,7 @@ apply_configs() {
 
 build_iso() {
     info "Building ISO (this will take 10–30 minutes)..."
-    mkarchiso -v -w "$WORK_DIR/work" -o "$OUT_DIR" "$PROFILE_DIR"
+    mkarchiso -v -w "$WORK_DIR/work" -o "$OUT_DIR/marmelado-os-x86_64.iso" "$PROFILE_DIR"
     log "ISO built successfully!"
     log "Output: $OUT_DIR/marmelado-os-x86_64.iso"
 }
