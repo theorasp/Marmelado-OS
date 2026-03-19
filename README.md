@@ -108,7 +108,7 @@ Marmelado OS sendet null Daten. Kein Phoning Home, keine Crash-Reports, keine Nu
 
 **Schritt 1 — Repository klonen:**
 ```bash
-git clone https://github.com/yourusername/marmelado-os.git
+git clone https://github.com/theorasp/marmelado-os.git
 cd marmelado-os
 ```
 
