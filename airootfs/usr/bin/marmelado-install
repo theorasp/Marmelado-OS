@@ -1,0 +1,304 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Marmelado OS — Interactive Disk Installer
+# Run from live environment: sudo marmelado-install
+# =============================================================================
+
+set -euo pipefail
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'
+BOLD='\033[1m'; NC='\033[0m'
+log()  { echo -e "${GREEN}[✓]${NC} $*"; }
+warn() { echo -e "${YELLOW}[!]${NC} $*"; }
+err()  { echo -e "${RED}[✗]${NC} $*"; exit 1; }
+info() { echo -e "${BLUE}[→]${NC} $*"; }
+ask()  { echo -e "${BOLD}[?]${NC} $*"; }
+
+clear
+cat << 'BANNER'
+
+  🍓  M A R M E L A D O   O S   —   I N S T A L L E R
+  ══════════════════════════════════════════════════════
+  Privacy · Performance · Freedom
+  Based on Arch Linux
+
+BANNER
+
+# --- Root check ---
+[[ $EUID -eq 0 ]] || err "Run as root: sudo marmelado-install"
+
+# --- Check internet ---
+info "Prüfe Internetverbindung..."
+ping -c1 archlinux.org &>/dev/null || err "Keine Internetverbindung! Verbinde mit WLAN (nmtui) und starte erneut."
+log "Internetverbindung OK."
+
+# ─── STEP 1: Select disk ───────────────────────────────────────────────────
+echo ""
+ask "Verfügbare Datenträger:"
+echo ""
+lsblk -dpno NAME,SIZE,MODEL | grep -v "loop\|sr"
+echo ""
+ask "Auf welchem Datenträger installieren? (z.B. /dev/sda oder /dev/nvme0n1)"
+read -rp "  → " TARGET_DISK
+
+[[ -b "$TARGET_DISK" ]] || err "Datenträger '$TARGET_DISK' nicht gefunden."
+
+warn "ACHTUNG: Alle Daten auf $TARGET_DISK werden GELÖSCHT!"
+ask "Fortfahren? (ja/nein)"
+read -rp "  → " CONFIRM
+[[ "$CONFIRM" == "ja" ]] || { echo "Installation abgebrochen."; exit 0; }
+
+# ─── STEP 2: User info ─────────────────────────────────────────────────────
+echo ""
+ask "Benutzername (z.B. felix):"
+read -rp "  → " USERNAME
+[[ "$USERNAME" =~ ^[a-z_][a-z0-9_-]*$ ]] || err "Ungültiger Benutzername. Nur Kleinbuchstaben und Zahlen."
+
+ask "Passwort für $USERNAME:"
+read -rsp "  → " USER_PASS; echo ""
+ask "Passwort bestätigen:"
+read -rsp "  → " USER_PASS2; echo ""
+[[ "$USER_PASS" == "$USER_PASS2" ]] || err "Passwörter stimmen nicht überein."
+
+ask "Root-Passwort:"
+read -rsp "  → " ROOT_PASS; echo ""
+
+ask "Hostname (Name des Computers, z.B. marmelado-pc):"
+read -rp "  → " HOSTNAME
+[[ -z "$HOSTNAME" ]] && HOSTNAME="marmelado"
+
+ask "Zeitzone (z.B. Europe/Berlin):"
+read -rp "  → " TIMEZONE
+[[ -z "$TIMEZONE" ]] && TIMEZONE="Europe/Berlin"
+
+ask "Sprache (z.B. de_DE.UTF-8 oder en_US.UTF-8):"
+read -rp "  → " LOCALE
+[[ -z "$LOCALE" ]] && LOCALE="de_DE.UTF-8"
+
+# ─── STEP 3: Partitioning ──────────────────────────────────────────────────
+info "Partitioniere $TARGET_DISK..."
+
+# Detect UEFI or BIOS
+if [[ -d /sys/firmware/efi/efivars ]]; then
+    BOOT_MODE="uefi"
+    info "UEFI-Modus erkannt."
+else
+    BOOT_MODE="bios"
+    info "BIOS/Legacy-Modus erkannt."
+fi
+
+wipefs -af "$TARGET_DISK" &>/dev/null
+
+if [[ "$BOOT_MODE" == "uefi" ]]; then
+    parted -s "$TARGET_DISK" \
+        mklabel gpt \
+        mkpart ESP fat32 1MiB 513MiB \
+        set 1 esp on \
+        mkpart primary ext4 513MiB 100%
+
+    PART_EFI="${TARGET_DISK}1"
+    PART_ROOT="${TARGET_DISK}2"
+
+    # Handle NVMe naming (nvme0n1p1 instead of nvme0n11)
+    if [[ "$TARGET_DISK" == *"nvme"* ]]; then
+        PART_EFI="${TARGET_DISK}p1"
+        PART_ROOT="${TARGET_DISK}p2"
+    fi
+
+    mkfs.fat -F32 -n MARMELADO_EFI "$PART_EFI"
+    mkfs.ext4 -L MARMELADO_ROOT "$PART_ROOT"
+
+    mount "$PART_ROOT" /mnt
+    mkdir -p /mnt/boot/efi
+    mount "$PART_EFI" /mnt/boot/efi
+else
+    parted -s "$TARGET_DISK" \
+        mklabel msdos \
+        mkpart primary ext4 1MiB 100% \
+        set 1 boot on
+
+    PART_ROOT="${TARGET_DISK}1"
+    [[ "$TARGET_DISK" == *"nvme"* ]] && PART_ROOT="${TARGET_DISK}p1"
+
+    mkfs.ext4 -L MARMELADO_ROOT "$PART_ROOT"
+    mount "$PART_ROOT" /mnt
+fi
+
+log "Partitionierung abgeschlossen."
+
+# ─── STEP 4: Install base system ───────────────────────────────────────────
+info "Installiere Basissystem (dauert einige Minuten)..."
+
+pacstrap /mnt \
+    base base-devel linux linux-firmware linux-headers \
+    networkmanager grub efibootmgr os-prober ntfs-3g \
+    xorg xfce4 xfce4-goodies lightdm lightdm-gtk-greeter \
+    xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin xfce4-battery-plugin \
+    thunar gvfs gvfs-mtp tumbler \
+    chromium libreoffice-fresh mousepad ristretto xfce4-terminal xfce4-taskmanager \
+    bluez bluez-utils blueman \
+    cups system-config-printer avahi \
+    ufw gufw firejail \
+    network-manager-applet nm-connection-editor \
+    pipewire pipewire-alsa pipewire-pulse wireplumber pavucontrol \
+    pamac-gtk \
+    ttf-liberation ttf-dejavu noto-fonts noto-fonts-emoji \
+    git wget curl htop neofetch zip unzip p7zip \
+    polkit-gnome xdg-user-dirs xdg-utils bash-completion \
+    gparted man-db sudo \
+    2>&1 | tee /tmp/pacstrap.log
+
+log "Basissystem installiert."
+
+# ─── STEP 5: Generate fstab ────────────────────────────────────────────────
+info "Generiere fstab..."
+genfstab -U /mnt >> /mnt/etc/fstab
+log "fstab generiert."
+
+# ─── STEP 6: Chroot configuration ──────────────────────────────────────────
+info "Konfiguriere System (chroot)..."
+
+arch-chroot /mnt /bin/bash << CHROOT
+set -e
+
+# Timezone
+ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
+hwclock --systohc
+
+# Locale
+echo "${LOCALE} UTF-8" >> /etc/locale.gen
+locale-gen
+echo "LANG=${LOCALE}" > /etc/locale.conf
+echo "LC_TIME=${LOCALE}" >> /etc/locale.conf
+
+# German keyboard in TTY
+echo "KEYMAP=de-latin1" > /etc/vconsole.conf
+
+# Hostname
+echo "${HOSTNAME}" > /etc/hostname
+cat >> /etc/hosts << EOF
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   ${HOSTNAME}.localdomain ${HOSTNAME}
+EOF
+
+# Root password
+echo "root:${ROOT_PASS}" | chpasswd
+
+# Create user
+useradd -m -G wheel,audio,video,storage,optical,network,power -s /bin/bash "${USERNAME}"
+echo "${USERNAME}:${USER_PASS}" | chpasswd
+
+# Sudo for wheel group
+echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
+
+# Enable services
+systemctl enable NetworkManager
+systemctl enable lightdm
+systemctl enable bluetooth
+systemctl enable cups
+systemctl enable avahi-daemon
+systemctl enable ufw
+
+# Firewall defaults
+ufw default deny incoming
+ufw default allow outgoing
+ufw enable
+
+# Privacy DNS (Quad9)
+mkdir -p /etc/NetworkManager/conf.d
+cat > /etc/NetworkManager/conf.d/dns-quad9.conf << EOF
+[global-dns-domain-*]
+servers=9.9.9.9,149.112.112.112
+EOF
+
+# MAC randomization
+cat > /etc/NetworkManager/conf.d/mac-randomize.conf << EOF
+[device]
+wifi.scan-rand-mac-address=yes
+[connection]
+wifi.cloned-mac-address=random
+ethernet.cloned-mac-address=random
+EOF
+
+# GRUB install
+if [[ -d /sys/firmware/efi/efivars ]]; then
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=MarmeladoOS
+else
+    grub-install --target=i386-pc ${TARGET_DISK}
+fi
+
+# Set GRUB theme
+cat > /etc/default/grub << EOF
+GRUB_DEFAULT=0
+GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR="Marmelado OS"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash loglevel=3"
+GRUB_CMDLINE_LINUX=""
+GRUB_DISABLE_OS_PROBER=false
+GRUB_GFXMODE=auto
+GRUB_GFXPAYLOAD_LINUX=keep
+EOF
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# LightDM config
+cat > /etc/lightdm/lightdm.conf << EOF
+[LightDM]
+greeter-session=lightdm-gtk-greeter
+user-session=xfce
+
+[Seat:*]
+greeter-session=lightdm-gtk-greeter
+EOF
+
+# mkinitcpio
+mkinitcpio -P
+
+# XDG user dirs for new user
+sudo -u ${USERNAME} xdg-user-dirs-update
+
+# Set keyboard shortcut: Super → Whisker Menu
+sudo -u ${USERNAME} mkdir -p /home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml
+
+cat > /home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="custom" type="empty">
+      <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
+      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal"/>
+      <property name="Print" type="string" value="xfce4-screenshooter -f"/>
+      <property name="&lt;Super&gt;e" type="string" value="thunar"/>
+    </property>
+  </property>
+</channel>
+EOF
+
+chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.config
+
+CHROOT
+
+log "Chroot-Konfiguration abgeschlossen."
+
+# ─── STEP 7: Copy Marmelado assets ─────────────────────────────────────────
+info "Kopiere Marmelado Branding..."
+if [[ -d /usr/share/marmelado ]]; then
+    cp -r /usr/share/marmelado /mnt/usr/share/
+fi
+
+# ─── STEP 8: Done ──────────────────────────────────────────────────────────
+umount -R /mnt
+
+echo ""
+echo -e "${GREEN}╔══════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║                                                      ║${NC}"
+echo -e "${GREEN}║   🍓  Marmelado OS erfolgreich installiert!          ║${NC}"
+echo -e "${GREEN}║                                                      ║${NC}"
+echo -e "${GREEN}║   Benutzer: ${USERNAME}                               ${NC}"
+echo -e "${GREEN}║   Hostname: ${HOSTNAME}                               ${NC}"
+echo -e "${GREEN}║                                                      ║${NC}"
+echo -e "${GREEN}║   Entferne USB und starte neu:  sudo reboot          ║${NC}"
+echo -e "${GREEN}║                                                      ║${NC}"
+echo -e "${GREEN}╚══════════════════════════════════════════════════════╝${NC}"
+echo ""

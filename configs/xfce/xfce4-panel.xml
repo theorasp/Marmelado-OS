@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Marmelado OS — XFCE4 Panel Configuration
+  Single panel at the bottom with all required applets
+-->
+<channel name="xfce4-panel" version="1.0">
+  <property name="configver" type="int" value="2"/>
+  <property name="panels" type="array">
+    <value type="int" value="1"/>
+    <property name="panel-1" type="empty">
+      <property name="position" type="string" value="p=8;x=0;y=0"/>
+      <property name="length" type="uint" value="100"/>
+      <property name="position-locked" type="bool" value="false"/>
+      <property name="size" type="uint" value="36"/>
+      <property name="background-style" type="uint" value="1"/>
+      <property name="background-color" type="array">
+        <value type="uint" value="16"/>
+        <value type="uint" value="20"/>
+        <value type="uint" value="34"/>
+        <value type="uint" value="234"/>
+      </property>
+      <property name="plugin-ids" type="array">
+        <value type="int" value="1"/>
+        <value type="int" value="2"/>
+        <value type="int" value="3"/>
+        <value type="int" value="4"/>
+        <value type="int" value="5"/>
+        <value type="int" value="6"/>
+        <value type="int" value="7"/>
+        <value type="int" value="8"/>
+        <value type="int" value="9"/>
+        <value type="int" value="10"/>
+        <value type="int" value="11"/>
+        <value type="int" value="12"/>
+        <value type="int" value="13"/>
+        <value type="int" value="14"/>
+      </property>
+    </property>
+  </property>
+  <property name="plugins" type="empty">
+    <!-- 1: Whisker Menu (Windows key) -->
+    <property name="plugin-1" type="string" value="whiskermenu">
+      <property name="show-button-title" type="bool" value="false"/>
+      <property name="button-icon" type="string" value="marmelado-os"/>
+      <property name="show-app-descriptions" type="bool" value="true"/>
+      <property name="category-hover-activate" type="bool" value="true"/>
+    </property>
+    <!-- 2: Separator -->
+    <property name="plugin-2" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
+      <property name="expand" type="bool" value="false"/>
+    </property>
+    <!-- 3: Tasklist (open windows) -->
+    <property name="plugin-3" type="string" value="tasklist">
+      <property name="show-labels" type="bool" value="true"/>
+      <property name="grouping" type="uint" value="1"/>
+      <property name="flat-buttons" type="bool" value="true"/>
+    </property>
+    <!-- 4: Spacer (pushes right-side items to the right) -->
+    <property name="plugin-4" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
+      <property name="expand" type="bool" value="true"/>
+    </property>
+    <!-- 5: System Tray -->
+    <property name="plugin-5" type="string" value="systray">
+      <property name="size-max" type="uint" value="22"/>
+      <property name="show-frame" type="bool" value="false"/>
+    </property>
+    <!-- 6: Network Manager Applet (WiFi) -->
+    <property name="plugin-6" type="string" value="nm-applet"/>
+    <!-- 7: Bluetooth (Blueman) -->
+    <property name="plugin-7" type="string" value="blueman-applet"/>
+    <!-- 8: Printer -->
+    <property name="plugin-8" type="string" value="separator">
+      <property name="style" type="uint" value="0"/>
+    </property>
+    <!-- 9: PulseAudio / Volume -->
+    <property name="plugin-9" type="string" value="pulseaudio">
+      <property name="enable-keyboard-shortcuts" type="bool" value="true"/>
+      <property name="show-notifications" type="bool" value="true"/>
+    </property>
+    <!-- 10: Battery -->
+    <property name="plugin-10" type="string" value="battery">
+      <property name="show-percentage" type="bool" value="true"/>
+      <property name="show-time" type="bool" value="false"/>
+    </property>
+    <!-- 11: Separator -->
+    <property name="plugin-11" type="string" value="separator">
+      <property name="style" type="uint" value="2"/>
+    </property>
+    <!-- 12: Notification Area -->
+    <property name="plugin-12" type="string" value="notification-plugin"/>
+    <!-- 13: Separator -->
+    <property name="plugin-13" type="string" value="separator">
+      <property name="style" type="uint" value="2"/>
+    </property>
+    <!-- 14: Clock (bottom right) -->
+    <property name="plugin-14" type="string" value="clock">
+      <property name="digital-format" type="string" value="%H:%M  %d.%m.%Y"/>
+      <property name="mode" type="uint" value="2"/>
+    </property>
+  </property>
+</channel>

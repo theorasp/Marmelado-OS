@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Marmelado Welcome
+Comment=Welcome to Marmelado OS
+Exec=marmelado-welcome
+Icon=marmelado-os
+Type=Application
+Categories=System;
+X-XFCE-Source=file:///usr/share/applications/marmelado-welcome.desktop

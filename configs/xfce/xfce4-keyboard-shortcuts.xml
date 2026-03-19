@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Marmelado OS — XFCE4 Keyboard Shortcuts
+  Super/Windows key opens the Whisker Menu (like Linux Mint)
+-->
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="custom" type="empty">
+      <!-- Windows/Super key → open Whisker Menu -->
+      <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
+      <!-- Ctrl+Alt+T → open Terminal -->
+      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal"/>
+      <!-- Screenshot -->
+      <property name="Print" type="string" value="xfce4-screenshooter -f"/>
+      <property name="&lt;Alt&gt;Print" type="string" value="xfce4-screenshooter -w"/>
+      <!-- Lock screen -->
+      <property name="&lt;Primary&gt;&lt;Alt&gt;l" type="string" value="xflock4"/>
+      <!-- File Manager -->
+      <property name="&lt;Super&gt;e" type="string" value="thunar"/>
+    </property>
+  </property>
+  <property name="xfwm4" type="empty">
+    <property name="custom" type="empty">
+      <!-- Window management shortcuts -->
+      <property name="&lt;Alt&gt;F4" type="string" value="close_window_key"/>
+      <property name="&lt;Alt&gt;F9" type="string" value="hide_window_key"/>
+      <property name="&lt;Alt&gt;F10" type="string" value="maximize_window_key"/>
+      <property name="&lt;Alt&gt;Tab" type="string" value="cycle_windows_key"/>
+    </property>
+  </property>
+</channel>

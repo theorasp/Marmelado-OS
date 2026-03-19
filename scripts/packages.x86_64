@@ -1,0 +1,136 @@
+# =============================================================================
+# Marmelado OS — Package List (packages.x86_64)
+# All packages installed into the live ISO and base install
+# =============================================================================
+
+# --- Base System ---
+base
+base-devel
+linux
+linux-firmware
+linux-headers
+mkinitcpio
+grub
+efibootmgr
+os-prober
+ntfs-3g
+
+# --- Boot & Init ---
+systemd
+systemd-sysvcompat
+
+# --- Networking ---
+networkmanager
+network-manager-applet
+nm-connection-editor
+dhcpcd
+iwd
+wireless_tools
+wpa_supplicant
+
+# --- Audio ---
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+pavucontrol
+
+# --- Display ---
+xorg
+xorg-server
+xorg-xinit
+xorg-xrandr
+mesa
+xf86-video-vesa
+
+# --- Desktop Environment: XFCE ---
+xfce4
+xfce4-goodies
+xfwm4
+xfdesktop
+xfce4-session
+xfce4-settings
+xfce4-panel
+xfce4-terminal
+xfce4-taskmanager
+xfce4-whiskermenu-plugin
+xfce4-pulseaudio-plugin
+xfce4-battery-plugin
+xfce4-clipman-plugin
+xfce4-screenshooter
+xfce4-notifyd
+xfce4-power-manager
+thunar
+thunar-archive-plugin
+thunar-volman
+gvfs
+gvfs-mtp
+tumbler
+
+# --- Login Manager ---
+lightdm
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+
+# --- Applications ---
+chromium
+libreoffice-fresh
+mousepad
+ristretto
+file-roller
+engrampa
+galculator
+
+# --- Bluetooth ---
+bluez
+bluez-utils
+blueman
+
+# --- Printing ---
+cups
+cups-pdf
+system-config-printer
+avahi
+nss-mdns
+
+# --- Privacy & Security ---
+ufw
+gufw
+firejail
+bleachbit
+
+# --- Package Manager GUI ---
+pamac-gtk
+archlinux-keyring
+
+# --- Fonts ---
+ttf-liberation
+ttf-dejavu
+noto-fonts
+noto-fonts-emoji
+ttf-font-awesome
+
+# --- Utilities ---
+git
+wget
+curl
+htop
+neofetch
+zip
+unzip
+p7zip
+rsync
+man-db
+bash-completion
+polkit-gnome
+xdg-user-dirs
+xdg-utils
+shared-mime-info
+gparted
+timeshift
+
+# --- Archiso specific (live environment only) ---
+archiso
+mkinitcpio-archiso
+memtest86+
+syslinux

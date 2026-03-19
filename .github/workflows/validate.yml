@@ -1,0 +1,84 @@
+name: Marmelado OS — Validate & Lint
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-scripts:
+    name: Validate Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint build.sh
+        run: shellcheck scripts/build.sh || true
+
+      - name: Lint post-install.sh
+        run: shellcheck scripts/post-install.sh || true
+
+      - name: Lint marmelado-install
+        run: shellcheck airootfs/usr/bin/marmelado-install || true
+
+      - name: Check package list for duplicates
+        run: |
+          DUPES=$(grep -v '^#' scripts/packages.x86_64 | grep -v '^$' | sort | uniq -d)
+          if [[ -n "$DUPES" ]]; then
+            echo "Duplicate packages found:"
+            echo "$DUPES"
+            exit 1
+          fi
+          echo "No duplicate packages found."
+
+  validate-xml:
+    name: Validate XML Configs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+
+      - name: Validate XFCE panel XML
+        run: xmllint --noout configs/xfce/xfce4-panel.xml
+
+      - name: Validate XFCE desktop XML
+        run: xmllint --noout configs/xfce/xfce4-desktop.xml
+
+      - name: Validate keyboard shortcuts XML
+        run: xmllint --noout configs/xfce/xfce4-keyboard-shortcuts.xml
+
+  check-structure:
+    name: Check Repository Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify required files exist
+        run: |
+          required=(
+            "scripts/build.sh"
+            "scripts/post-install.sh"
+            "scripts/packages.x86_64"
+            "scripts/profiledef.sh"
+            "airootfs/usr/bin/marmelado-install"
+            "configs/xfce/xfce4-panel.xml"
+            "configs/grub/theme.txt"
+            "docs/INSTALL.md"
+            "README.md"
+          )
+          for f in "${required[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "MISSING: $f"
+              exit 1
+            fi
+            echo "OK: $f"
+          done

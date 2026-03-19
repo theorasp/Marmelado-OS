@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Marmelado OS installieren
+GenericName=System Installer
+Comment=Marmelado OS auf Festplatte installieren
+Exec=xfce4-terminal -e "sudo marmelado-install"
+Icon=system-software-install
+Terminal=false
+Categories=System;
+Keywords=install;installer;setup;

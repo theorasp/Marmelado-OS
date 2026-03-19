@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Marmelado OS — Welcome App (GUI)
+# Opens a Zenity dialog on first boot
+# /usr/bin/marmelado-welcome
+# =============================================================================
+
+FIRST_RUN_FLAG="$HOME/.config/marmelado/.welcomed"
+
+if [[ -f "$FIRST_RUN_FLAG" ]]; then
+    exit 0
+fi
+
+mkdir -p "$HOME/.config/marmelado"
+
+zenity --info \
+    --title="Willkommen bei Marmelado OS 🍓" \
+    --width=480 \
+    --height=300 \
+    --text="<big><b>Willkommen bei Marmelado OS!</b></big>
+
+Dein datenschutzorientiertes, schnelles Arch-Linux.
+
+<b>Wichtige Tastenkürzel:</b>
+• <b>Windows-Taste</b> → App-Menü öffnen
+• <b>Strg+Alt+T</b> → Terminal öffnen
+• <b>Druck-Taste</b> → Screenshot
+
+<b>Vorinstallierte Apps:</b>
+Chromium, LibreOffice, Thunar, Terminal, Pamac (App-Store)
+
+<b>Privacy:</b> Firewall aktiv · DNS: Quad9 · MAC: zufällig
+
+Viel Spaß mit Marmelado OS!" \
+    --ok-label="Los geht's!" 2>/dev/null
+
+touch "$FIRST_RUN_FLAG"

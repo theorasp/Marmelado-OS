@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Marmelado OS — XFCE4 Desktop Configuration
+  - Helldivers wallpaper
+  - Desktop icons: Trash, Home, Filesystem
+  - Right-click menu enabled
+-->
+<channel name="xfce4-desktop" version="1.0">
+  <property name="backdrop" type="empty">
+    <property name="screen0" type="empty">
+      <property name="monitorHDMI-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="color-style" type="int" value="0"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/marmelado/wallpaper/helldivers-wallpaper.jpg"/>
+        </property>
+      </property>
+      <property name="monitoreDP-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="color-style" type="int" value="0"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/marmelado/wallpaper/helldivers-wallpaper.jpg"/>
+        </property>
+      </property>
+    </property>
+  </property>
+  <property name="desktop-icons" type="empty">
+    <property name="style" type="int" value="2"/>
+    <property name="file-icons" type="empty">
+      <property name="show-home" type="bool" value="true"/>
+      <property name="show-filesystem" type="bool" value="true"/>
+      <property name="show-removable" type="bool" value="true"/>
+      <property name="show-trash" type="bool" value="true"/>
+    </property>
+    <property name="icon-size" type="uint" value="48"/>
+    <property name="tooltip-size" type="uint" value="128"/>
+    <property name="use-custom-font-size" type="bool" value="false"/>
+    <property name="label-text-color" type="string" value="#ffffff"/>
+    <property name="label-bg-color" type="string" value="#00000099"/>
+  </property>
+  <property name="last-settings-migration-version" type="int" value="1"/>
+</channel>
