@@ -17,7 +17,7 @@
 
 ## ⬇️ Jetzt installieren — 5 einfache Schritte
 
-### Schritt 1 — ISO herunterladen
+### Schritt 1 — ISO herunterladen (Für maximale Performance Linuxarch empfohlen ab Schritt 5 weiter machen fals LinuxArch)
 
 Klick hier zum Herunterladen:
 
