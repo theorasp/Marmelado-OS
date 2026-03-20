@@ -100,7 +100,6 @@ firejail
 bleachbit
 
 # --- Package Manager GUI ---
-pamac-gtk
 archlinux-keyring
 
 # --- Fonts ---
@@ -115,7 +114,6 @@ git
 wget
 curl
 htop
-neofetch
 zip
 unzip
 p7zip
