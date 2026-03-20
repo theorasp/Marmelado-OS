@@ -10,7 +10,7 @@
 ### 1. ISO bauen
 
 ```bash
-git clone https://github.com/yourusername/marmelado-os.git
+git clone https://github.com/theorasp/marmelado-os.git
 cd marmelado-os
 sudo pacman -S archiso
 sudo ./scripts/build.sh
